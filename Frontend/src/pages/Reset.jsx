@@ -70,7 +70,7 @@ export default function Reset() {
                         padding={3}
                         textAlign="center"
                     >
-                        Login
+                        Reset Password
                     </Typography>
 
                     <TextField
