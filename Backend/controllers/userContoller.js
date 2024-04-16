@@ -1,33 +1,33 @@
 const userModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
 //env config
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: "gmail",
   auth: {
     user: process.env.EMAIL_ID, // replace with your email
-    pass: process.env.EMAIL_PASSWORD // replace with your email password
-  }
+    pass: process.env.EMAIL_PASSWORD, // replace with your email password
+  },
 });
 
 function sendVerificationEmail(admin) {
-  const verificationLink = `${process.env.API_BASE_URL}/api/v1/user/verify/${admin.verificationToken}`;
+  const verificationLink = `${process.env.API_BASE_URL}/user/verify/${admin.verificationToken}`;
 
   const mailOptions = {
     from: process.env.EMAIL_ID,
     to: admin.email,
-    subject: 'Email Verification',
+    subject: "Email Verification",
     text: `Click the following link to verify your email: ${verificationLink}`,
-    html: `<p>Click the following link to verify your email: <a href="${verificationLink}">${verificationLink}</a></p>`
+    html: `<p>Click the following link to verify your email: <a href="${verificationLink}">${verificationLink}</a></p>`,
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.error(error);
-    } 
+    }
     // else {
     //   console.log('Email sent: ' + info.response);
     // }
@@ -41,7 +41,7 @@ exports.verifyTokenController = async (req, res) => {
     const admin = await userModel.findOne({ verificationToken: token });
 
     if (!admin) {
-      return res.status(404).json({ error: 'Invalid verification token' });
+      return res.status(404).json({ error: "Invalid verification token" });
     }
 
     admin.isVerified = true;
@@ -49,14 +49,14 @@ exports.verifyTokenController = async (req, res) => {
 
     await admin.save();
 
-    res.status(200).json({ message: 'Email verification successful. You can now log in.' });
+    res
+      .status(200)
+      .json({ message: "Email verification successful. You can now log in." });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
-
 
 //create user register user
 exports.registerController = async (req, res) => {
@@ -83,7 +83,12 @@ exports.registerController = async (req, res) => {
     const verificationToken = Math.random().toString(36).substring(7);
 
     //save new user
-    const user = new userModel({ username, email, password: hashedPassword, verificationToken: verificationToken, });
+    const user = new userModel({
+      username,
+      email,
+      password: hashedPassword,
+      verificationToken: verificationToken,
+    });
     const savedUser = await user.save();
 
     sendVerificationEmail(savedUser);
@@ -135,7 +140,7 @@ exports.loginController = async (req, res) => {
       });
     }
     const user = await userModel.findOne({ email });
-    if (user===null) {
+    if (user === null) {
       return res.status(200).send({
         success: false,
         error: "regErr",
@@ -143,7 +148,7 @@ exports.loginController = async (req, res) => {
       });
     }
     //password
-    const isMatch = await bcrypt.compare(password, user.password);  
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).send({
         success: false,
@@ -158,7 +163,7 @@ exports.loginController = async (req, res) => {
         messgae: "Verify Your email address...",
         user,
       });
-    } 
+    }
     return res.status(200).send({
       success: true,
       error: "noErr",
@@ -174,7 +179,6 @@ exports.loginController = async (req, res) => {
     });
   }
 };
-
 
 exports.resetController = async (req, res) => {
   try {
@@ -205,7 +209,11 @@ exports.resetController = async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     // user.password = newPassword;
-    const updatedUser = await userModel.findOneAndUpdate({ email }, { password: hashedPassword }, { new: true })
+    const updatedUser = await userModel.findOneAndUpdate(
+      { email },
+      { password: hashedPassword },
+      { new: true }
+    );
 
     return res.status(200).send({
       success: true,

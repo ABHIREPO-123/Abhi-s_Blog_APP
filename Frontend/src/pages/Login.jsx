@@ -22,25 +22,32 @@ const Login = () => {
     }));
   };
 
+  const [loading, setLoading] = useState(false);
   //form handle
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post(`${import.meta.env.VITE_API}/user/login`, {
-        email: inputs.email,
-        password: inputs.password,
-      });
-      if (!data.success && data.error==="regErr") {
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API}/user/login`,
+        {
+          email: inputs.email,
+          password: inputs.password,
+        }
+      );
+      if (!data.success && data.error === "regErr") {
         toast.error("You are not Registered. ");
-      } else if(!data.success && data.error==="emailErr"){
+      } else if (!data.success && data.error === "emailErr") {
         toast.error("Verify Your email ID");
-      }
-      else {
+      } else {
+        setLoading(true);
+        console.log(loading);
         localStorage.setItem("userId", data?.user._id);
         localStorage.setItem("currentUser", data?.user.username);
         dispatch(authActions.login());
         toast.success("User login Successfully");
         navigate("/");
+        setLoading(false);
+        console.log(loading);
       }
     } catch (error) {
       toast.error("Invalid Email or Password");
@@ -73,17 +80,17 @@ const Login = () => {
 
           <TextField
             sx={{
-              mx: "auto",  
-              my: 1,  
-              // width: '300px',  
-              '& input': {
-                height: '12px',  
+              mx: "auto",
+              my: 1,
+              // width: '300px',
+              "& input": {
+                height: "12px",
               },
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '21px', 
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "21px",
               },
-              '& .Mui-focused .MuiOutlinedInput-notchedOutline': {
-                borderColor: '#810CA8', 
+              "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#810CA8",
               },
             }}
             placeholder="email"
@@ -96,17 +103,17 @@ const Login = () => {
           />
           <TextField
             sx={{
-              mx: "auto",  
-              my: 1,  
-              // width: '300px',  
-              '& input': {
-                height: '12px',  
+              mx: "auto",
+              my: 1,
+              // width: '300px',
+              "& input": {
+                height: "12px",
               },
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '21px', 
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "21px",
               },
-              '& .Mui-focused .MuiOutlinedInput-notchedOutline': {
-                borderColor: '#810CA8', 
+              "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#810CA8",
               },
             }}
             placeholder="password"
@@ -121,8 +128,9 @@ const Login = () => {
           <Button
             type="submit"
             sx={{
-              borderRadius: 12, marginTop: 2,
-              backgroundColor: '#810CA8',
+              borderRadius: 12,
+              marginTop: 2,
+              backgroundColor: "#810CA8",
               ":hover": {
                 backgroundColor: "#2D033B",
               },
@@ -135,9 +143,9 @@ const Login = () => {
           <Button
             onClick={() => navigate("/register")}
             sx={{
-              borderRadius: 12, marginTop: 2,
-              color: '#810CA8',
-
+              borderRadius: 12,
+              marginTop: 2,
+              color: "#810CA8",
             }}
           >
             Not a user ? Please Register
@@ -146,8 +154,7 @@ const Login = () => {
             onClick={() => navigate("/reset-password")}
             sx={{
               borderRadius: 12,
-              color: '#810CA8',
-
+              color: "#810CA8",
             }}
           >
             Reset Password
